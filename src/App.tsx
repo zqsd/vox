@@ -1,35 +1,43 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
+import { Component, createRef, RefObject } from 'react'
 import './App.css'
+import { Spectre } from './components/Spectre';
+import { spectrogram } from './controllers/Spectrogram';
 
-function App() {
-  const [count, setCount] = useState(0)
+document.addEventListener("DOMContentLoaded", () => {
+  spectrogram.start();
+});
 
-  return (
-    <>
-      <div>
-        <a href="https://vitejs.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+class App extends Component {
+  _spectreRef: RefObject<Spectre>;
+
+  constructor(props: {}) {
+    super(props);
+    this._spectreRef = createRef();
+
+    this.start = this.start.bind(this);
+  }
+
+  componentDidMount(): void {
+    this.start();
+  }
+
+  componentWillUnmount() {
+  }
+
+  async start(): Promise<void> {
+    if (!spectrogram.running) {
+      try {
+        await spectrogram.start();
+      }
+      catch(e) {
+        console.error('failed to create audio context + analyzer')
+      }
+    }
+  }
+
+  render() {
+    return <Spectre ref={this._spectreRef} />;
+  }
 }
 
 export default App
